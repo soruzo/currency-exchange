@@ -1,0 +1,43 @@
+name: Nest.js CI/CD with PostgreSQL on AWS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+
+    - name: Install and configure AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+        echo ${{ secrets.AWS_ACCESS_KEY_ID }} | aws configure set aws_access_key_id --profile default
+        echo ${{ secrets.AWS_SECRET_ACCESS_KEY }} | aws configure set aws_secret_access_key --profile default
+
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        npm run build
+        zip -r deploy.zip . -x '.git' 'node_modules/*'
+        aws elasticbeanstalk create-application-version --application-name currency-exchange-01 --version-label ${{ github.sha }} --source-bundle S3Bucket=elasticbeanstalk-us-east-1-048448546086,S3Key=deploy.zip
+        aws elasticbeanstalk update-environment --environment-name Currencyexchange01-env --version-label ${{ github.sha }}
