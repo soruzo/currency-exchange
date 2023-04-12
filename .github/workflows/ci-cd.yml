@@ -49,6 +49,13 @@ jobs:
     - name: Build
       run: npm run build
 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
     - name: Install and configure AWS CLI
       run: |
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -63,5 +70,6 @@ jobs:
       run: |
         npm run build
         zip -r deploy.zip . -x '.git' 'node_modules/*'
+        aws s3 cp deploy.zip s3://elasticbeanstalk-us-east-1-048448546086/deploy.zip
         aws elasticbeanstalk create-application-version --application-name currency-exchange-01 --version-label ${{ github.sha }} --source-bundle S3Bucket=elasticbeanstalk-us-east-1-048448546086,S3Key=deploy.zip
         aws elasticbeanstalk update-environment --environment-name Currencyexchange01-env --version-label ${{ github.sha }}
