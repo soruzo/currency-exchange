@@ -1,76 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Exchange } from '../entities/exchange.entity';
-import { Repository } from 'typeorm';
-import { HttpService } from '@nestjs/axios';
-import { map } from 'rxjs/operators';
 import { v4 as uuid } from 'uuid';
+import { ExchangeRepository } from '../repositories/exchange.repository';
+import { ExchangeRatesGateway } from '../gateways/exchange-rates.gateway';
+import { Exchange } from '../entities/exchange.entity';
+import { Logger } from '@nestjs/common';
+
 
 @Injectable()
 export class ExchangesService {
+    private readonly logger = new Logger(ExchangesService.name);
+
     constructor(
-        @InjectRepository(Exchange)
-        private readonly exchangeRepository: Repository<Exchange>,
-        private readonly httpService: HttpService
+        private readonly exchangeRepository: ExchangeRepository,
+        private readonly exchangeGateway: ExchangeRatesGateway
     ) { }
 
     async create(exchange: Partial<Exchange>): Promise<Exchange> {
-        const { result, info, date } = await this.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.destinationCurrency);
+        try {
 
-        const dateFromTimestamp = new Date(date).toISOString();
-        const newExchange = exchange;
+            this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.destinationCurrency}`);
+            const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.destinationCurrency);
 
-        newExchange.transactionId = await uuid();
-        newExchange.datetime = dateFromTimestamp;
-        newExchange.rate = info.rate;
-        newExchange.destinationValue = result;
+            const dateFromTimestamp = new Date(date).toISOString();
+            const newExchange = exchange;
 
-        const response = this.exchangeRepository.create(newExchange);
+            newExchange.transactionId = await uuid();
+            newExchange.datetime = dateFromTimestamp;
+            newExchange.rate = info.rate;
+            newExchange.destinationValue = result;
 
-        await this.exchangeRepository.save(response);
+            this.logger.log(`Saving currency conversion information from transaction: ${newExchange.transactionId}`);
+            const response = await this.exchangeRepository.createExchange(newExchange);
+            this.logger.log(`Currency conversion process completed successfully from transaction: ${newExchange.transactionId}`);
 
-        return response;
+            return response;
+
+        } catch (error) {
+            this.logger.error("Something wrong in the conversion process.")
+            throw error;
+        }
     }
 
     async findByUserId(userId: string): Promise<Exchange[]> {
-
-        return await this.exchangeRepository.find({ where: { userId } });
+        return await this.exchangeRepository.findByUserId(userId);
     }
 
-    private async getRates(base: string, symbols: string) {
-        const URL = `${process.env.EXCHANGE_API_URL}/latest`;
-        const API_KEY = process.env.EXCHANGE_API_KEY;
-
-        const response = await this.httpService
-            .get(URL, {
-                params: {
-                    base,
-                    symbols
-                },
-                headers: {
-                    apikey: API_KEY,
-                },
-            })
-            .pipe(map((response) => response.data))
-            .toPromise();
-
-        return response;
-    }
-
-    private async convert(amount: number, from: string, to: string) {
-        const URL = `${process.env.EXCHANGE_API_URL}/convert`;
-        const API_KEY = process.env.EXCHANGE_API_KEY;
-
-        const response = await this.httpService
-            .get(URL, {
-                params: { amount, from, to },
-                headers: {
-                    apikey: API_KEY,
-                },
-            })
-            .pipe(map((response) => response.data))
-            .toPromise();
-
-        return response;
-    }
 }
