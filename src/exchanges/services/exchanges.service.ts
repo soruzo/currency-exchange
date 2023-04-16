@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Exchange } from './exchange.entity';
+import { Exchange } from '../entities/exchange.entity';
 import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { map } from 'rxjs/operators';

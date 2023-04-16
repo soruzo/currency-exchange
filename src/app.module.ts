@@ -4,7 +4,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SnakeToCamelInterceptor } from './app.interceptor';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExchangesModule } from './exchanges/exchanges.module';
-import { Exchange } from './exchanges/exchange.entity';
+import { Exchange } from './exchanges/entities/exchange.entity';
 
 @Module({
   imports: [

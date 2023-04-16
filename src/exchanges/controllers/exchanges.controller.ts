@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { CreateExchangeRequestDto } from './dto/create-exchange-request.dto';
-import { ExchangeResponseDto } from './dto/exchange-response.dto';
-import { ExchangesService } from './exchanges.service';
+import { CreateExchangeRequestDto } from '../dto/create-exchange-request.dto';
+import { ExchangeResponseDto } from '../dto/exchange-response.dto';
+import { ExchangesService } from '../services/exchanges.service';
 
 @Controller('exchanges')
 export class ExchangesController {
