@@ -1,4 +1,4 @@
-export class CreateExchangeResponseDto {
+export class ExchangeResponseDto {
     transactionId: string;
     userId: string;
     sourceCurrency: string;
@@ -6,5 +6,5 @@ export class CreateExchangeResponseDto {
     destinationCurrency: string;
     destinationValue: number;
     rate: number;
-    datetime: string; 
+    datetime: string;
 }
