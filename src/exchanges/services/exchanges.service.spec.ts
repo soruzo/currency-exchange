@@ -81,11 +81,6 @@ describe('ExchangesService', () => {
       };
 
       (gateway.convert as jest.Mock).mockResolvedValue(convertResponse);
-      // jest.mock('uuid', () => {
-      //   return {
-      //     v4: jest.fn().mockReturnValue('fixed-transaction-id'),
-      //   };
-      // });
 
       const completeExchange: Exchange = {
         id: '1',
