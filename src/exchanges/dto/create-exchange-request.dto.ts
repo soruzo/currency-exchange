@@ -7,7 +7,7 @@ export class CreateExchangeRequestDto {
 
     @IsNotEmpty()
     @IsString()
-    // @IsIn(['BRL', 'USD', 'EUR', 'JPY'])
+    @IsIn(['BRL', 'USD', 'EUR', 'JPY'])
     sourceCurrency: string;
 
     @IsNotEmpty()
@@ -16,6 +16,6 @@ export class CreateExchangeRequestDto {
 
     @IsNotEmpty()
     @IsString()
-    // @IsIn(['BRL', 'USD', 'EUR', 'JPY'])
+    @IsIn(['BRL', 'USD', 'EUR', 'JPY'])
     targetCurrency: string;
 }

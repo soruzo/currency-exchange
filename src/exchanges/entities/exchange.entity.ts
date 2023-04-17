@@ -8,7 +8,6 @@ export class Exchange {
     @Column()
     userId: string;
 
-    // @Generated('uuid')
     @Column()
     transactionId: string
 
