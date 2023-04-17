@@ -17,9 +17,8 @@ export class ExchangesService {
 
     async create(exchange: Partial<Exchange>): Promise<Exchange> {
         try {
-
-            this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.destinationCurrency}`);
-            const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.destinationCurrency);
+            this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.targetCurrency}`);
+            const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
 
             const dateFromTimestamp = new Date(date).toISOString();
             const newExchange = exchange;
@@ -27,7 +26,7 @@ export class ExchangesService {
             newExchange.transactionId = await uuid();
             newExchange.datetime = dateFromTimestamp;
             newExchange.rate = info.rate;
-            newExchange.destinationValue = result;
+            newExchange.targetValue = result;
 
             this.logger.log(`Saving currency conversion information from transaction: ${newExchange.transactionId}`);
             const response = await this.exchangeRepository.createExchange(newExchange);
@@ -36,13 +35,18 @@ export class ExchangesService {
             return response;
 
         } catch (error) {
-            this.logger.error("Something wrong in the conversion process.")
+            this.logger.error("Something wrong on the conversion process.");
             throw error;
         }
     }
 
     async findByUserId(userId: string): Promise<Exchange[]> {
-        return await this.exchangeRepository.findByUserId(userId);
+        try {
+            this.logger.log(`Trying to find user by user_id: ${userId}`);
+            return await this.exchangeRepository.findByUserId(userId);
+        } catch (error) {
+            this.logger.error("Something wrong on find user process.");
+            throw error;
+        }
     }
-
 }
