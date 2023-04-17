@@ -15,54 +15,67 @@ export class ExchangesService {
         private readonly exchangeGateway: ExchangeRatesGateway
     ) { }
 
-    private toResponseDto(exchange: Exchange): ExchangeResponseDto {
+
+
+    async create(exchange: Partial<Exchange>): Promise<ExchangeResponseDto> {
+        this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.targetCurrency}`);
+        const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
+
+        const dateFromTimestamp = new Date(date).toISOString();
+        const transactionId = await uuid();
+        const rate = info.rate;
+        const targetValue = result;
+
+        const newExchange = {
+            ...exchange,
+            transactionId,
+            datetime: dateFromTimestamp,
+            rate,
+            targetValue,
+        };
+
+        this.logger.log(`Saving currency conversion information from transaction: ${transactionId}`);
+        const createdExchange = await this.exchangeRepository.createExchange(newExchange);
+        this.logger.log(`Currency conversion process completed successfully from transaction: ${transactionId}`);
+
+        return this.toResponseDto(createdExchange, transactionId, dateFromTimestamp, rate, targetValue);
+    }
+
+    async findByUserId(userId: string): Promise<ExchangeResponseDto[]> {
+        this.logger.log(`Trying to find user by user_id: ${userId}`);
+        const exchanges = await this.exchangeRepository.findByUserId(userId);
+        return exchanges.map(exchange => this.toResponseDto(
+            exchange,
+            exchange.transactionId,
+            exchange.datetime,
+            exchange.rate,
+            exchange.targetValue
+        ));
+    }
+
+    private toResponseDto(
+        exchange: Exchange,
+        transactionId: string,
+        datetime: string,
+        rate: number,
+        targetValue: number
+    ): ExchangeResponseDto {
+        if (!exchange) {
+            throw new Error("Exchange object is undefined");
+        }
+
         const responseDto: ExchangeResponseDto = {
-            transactionId: exchange.transactionId,
+            transactionId,
             userId: exchange.userId,
             sourceCurrency: exchange.sourceCurrency,
             sourceValue: exchange.sourceValue,
             targetCurrency: exchange.targetCurrency,
-            targetValue: exchange.targetValue,
-            rate: exchange.rate,
-            datetime: exchange.datetime,
+            targetValue,
+            rate,
+            datetime,
         };
 
         return responseDto;
     }
 
-    async create(exchange: Partial<Exchange>): Promise<ExchangeResponseDto> {
-        try {
-            this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.targetCurrency}`);
-            const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
-
-            const dateFromTimestamp = new Date(date).toISOString();
-            const newExchange = exchange;
-
-            newExchange.transactionId = await uuid();
-            newExchange.datetime = dateFromTimestamp;
-            newExchange.rate = info.rate;
-            newExchange.targetValue = result;
-
-            this.logger.log(`Saving currency conversion information from transaction: ${newExchange.transactionId}`);
-            const createdExchange = await this.exchangeRepository.createExchange(newExchange);
-            this.logger.log(`Currency conversion process completed successfully from transaction: ${newExchange.transactionId}`);
-
-            return this.toResponseDto(createdExchange);
-
-        } catch (error) {
-            this.logger.error("Something wrong on the conversion process.");
-            throw error;
-        }
-    }
-
-    async findByUserId(userId: string): Promise<ExchangeResponseDto[]> {
-        try {
-            this.logger.log(`Trying to find user by user_id: ${userId}`);
-            const exchanges = await this.exchangeRepository.findByUserId(userId);
-            return exchanges.map(this.toResponseDto);
-        } catch (error) {
-            this.logger.error("Something wrong on find user process.");
-            throw error;
-        }
-    }
 }

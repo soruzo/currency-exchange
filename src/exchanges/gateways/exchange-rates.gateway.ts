@@ -12,7 +12,7 @@ export class ExchangeRatesGateway {
         const URL = `${process.env.EXCHANGE_API_URL}/convert`;
         const API_KEY = process.env.EXCHANGE_API_KEY;
 
-        const response = await this.httpService
+        return await this.httpService
             .get(URL, {
                 params: { amount, from, to },
                 headers: {
@@ -21,7 +21,5 @@ export class ExchangeRatesGateway {
             })
             .pipe(map((response) => response.data))
             .toPromise();
-
-        return response;
     }
 }
