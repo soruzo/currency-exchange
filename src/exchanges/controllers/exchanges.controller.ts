@@ -13,9 +13,14 @@ export class ExchangesController {
 
     @Get(':id')
     @UseGuards(AuthGuard)
-    @ApiOperation({ summary: 'Buscar taxas de câmbio do usuário por ID' })
-    @ApiParam({ name: 'id', type: String, description: 'ID do usuário' })
-    @ApiResponse({ status: 200, type: [ExchangeResponseDto], description: 'Taxas de câmbio do usuário encontradas com sucesso' })
+    @ApiOperation({ summary: 'Search user exchange rates by ID' })
+    @ApiParam({ name: 'id', type: String, description: 'User ID' })
+    @ApiResponse({
+        status: 200,
+        description: 'User exchange rates found successfully',
+        type: ExchangeResponseDto,
+        isArray: true,
+    })
     async findByUserId(@Param('id') userId): Promise<ExchangeResponseDto[]> {
         this.logger.log(`Request to find user exchanges rates by user_id (${userId}) started`);
 
@@ -25,8 +30,9 @@ export class ExchangesController {
     @Post()
     @UseGuards(AuthGuard)
     @UsePipes(ValidationPipe)
-    @ApiOperation({ summary: 'Converter taxas de câmbio' })
-    @ApiResponse({ status: 201, type: ExchangeResponseDto, description: 'Taxas de câmbio convertidas com sucesso' })
+    @ApiOperation({ summary: 'Convert exchange rates' })
+    @ApiBody({ type: CreateExchangeRequestDto })
+    @ApiResponse({ status: 201, type: ExchangeResponseDto, description: 'Exchange rates successfully converted' })
     async create(@Body() createExchangeDto: CreateExchangeRequestDto): Promise<ExchangeResponseDto> {
         this.logger.log(`Request to convert an exchange rates started`);
 

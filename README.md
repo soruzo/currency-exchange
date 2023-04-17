@@ -19,8 +19,6 @@ npm install
 Configuração
 Crie um arquivo .env na raiz do projeto com as seguintes variáveis de ambiente:
 
-makefile
-Copy code
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USERNAME=myuser
@@ -31,6 +29,4 @@ Ajuste os valores de acordo com a configuração do seu banco de dados PostgreSQ
 Executando localmente
 Para executar a aplicação localmente, use o comando:
 
-bash
-Copy code
 npm run start:dev
