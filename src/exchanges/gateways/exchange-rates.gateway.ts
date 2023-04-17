@@ -24,24 +24,4 @@ export class ExchangeRatesGateway {
 
         return response;
     }
-
-    private async getRates(base: string, symbols: string) {
-        const URL = `${process.env.EXCHANGE_API_URL}/latest`;
-        const API_KEY = process.env.EXCHANGE_API_KEY;
-
-        const response = await this.httpService
-            .get(URL, {
-                params: {
-                    base,
-                    symbols
-                },
-                headers: {
-                    apikey: API_KEY,
-                },
-            })
-            .pipe(map((response) => response.data))
-            .toPromise();
-
-        return response;
-    }
 }
