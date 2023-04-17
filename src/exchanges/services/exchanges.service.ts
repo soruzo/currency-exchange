@@ -4,7 +4,7 @@ import { ExchangeRepository } from '../repositories/exchange.repository';
 import { ExchangeRatesGateway } from '../gateways/exchange-rates.gateway';
 import { Exchange } from '../entities/exchange.entity';
 import { Logger } from '@nestjs/common';
-
+import { ExchangeResponseDto } from '../dto/exchange-response.dto';
 
 @Injectable()
 export class ExchangesService {
@@ -15,7 +15,22 @@ export class ExchangesService {
         private readonly exchangeGateway: ExchangeRatesGateway
     ) { }
 
-    async create(exchange: Partial<Exchange>): Promise<Exchange> {
+    private toResponseDto(exchange: Exchange): ExchangeResponseDto {
+        const responseDto: ExchangeResponseDto = {
+            transactionId: exchange.transactionId,
+            userId: exchange.userId,
+            sourceCurrency: exchange.sourceCurrency,
+            sourceValue: exchange.sourceValue,
+            targetCurrency: exchange.targetCurrency,
+            targetValue: exchange.targetValue,
+            rate: exchange.rate,
+            datetime: exchange.datetime,
+        };
+
+        return responseDto;
+    }
+
+    async create(exchange: Partial<Exchange>): Promise<ExchangeResponseDto> {
         try {
             this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.targetCurrency}`);
             const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
@@ -29,10 +44,10 @@ export class ExchangesService {
             newExchange.targetValue = result;
 
             this.logger.log(`Saving currency conversion information from transaction: ${newExchange.transactionId}`);
-            const response = await this.exchangeRepository.createExchange(newExchange);
+            const createdExchange = await this.exchangeRepository.createExchange(newExchange);
             this.logger.log(`Currency conversion process completed successfully from transaction: ${newExchange.transactionId}`);
 
-            return response;
+            return this.toResponseDto(createdExchange);
 
         } catch (error) {
             this.logger.error("Something wrong on the conversion process.");
@@ -40,10 +55,11 @@ export class ExchangesService {
         }
     }
 
-    async findByUserId(userId: string): Promise<Exchange[]> {
+    async findByUserId(userId: string): Promise<ExchangeResponseDto[]> {
         try {
             this.logger.log(`Trying to find user by user_id: ${userId}`);
-            return await this.exchangeRepository.findByUserId(userId);
+            const exchanges = await this.exchangeRepository.findByUserId(userId);
+            return exchanges.map(this.toResponseDto);
         } catch (error) {
             this.logger.error("Something wrong on find user process.");
             throw error;

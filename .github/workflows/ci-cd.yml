@@ -11,6 +11,16 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+          POSTGRES_DB: mydatabase
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
     - name: Checkout repository
@@ -29,6 +39,12 @@ jobs:
 
     - name: Run tests
       run: npm run test
+      env:
+        POSTGRES_HOST: localhost
+        POSTGRES_PORT: 5432
+        POSTGRES_USERNAME: your_test_username
+        POSTGRES_PASSWORD: your_test_password
+        POSTGRES_DATABASE: your_test_database
 
   deploy:
     runs-on: ubuntu-latest
