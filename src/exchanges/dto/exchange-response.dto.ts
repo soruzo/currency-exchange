@@ -3,8 +3,8 @@ export class ExchangeResponseDto {
     userId: string;
     sourceCurrency: string;
     sourceValue: number;
-    destinationCurrency: string;
-    destinationValue: number;
+    targetCurrency: string;
+    targetValue: number;
     rate: number;
     datetime: string;
 }

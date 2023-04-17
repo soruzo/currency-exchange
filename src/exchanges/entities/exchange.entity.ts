@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Generated } from 'typeorm';
 
 @Entity()
 export class Exchange {
@@ -8,6 +8,7 @@ export class Exchange {
     @Column()
     userId: string;
 
+    // @Generated('uuid')
     @Column()
     transactionId: string
 
@@ -18,10 +19,10 @@ export class Exchange {
     sourceValue: number;
 
     @Column()
-    destinationCurrency: string;
+    targetCurrency: string;
 
     @Column({ type: 'float', nullable: false, default: 0 })
-    destinationValue: number;
+    targetValue: number;
 
     @Column({ type: 'float', nullable: false, default: 0 })
     rate: number;

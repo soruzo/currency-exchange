@@ -17,5 +17,5 @@ export class CreateExchangeRequestDto {
     @IsNotEmpty()
     @IsString()
     // @IsIn(['BRL', 'USD', 'EUR', 'JPY'])
-    destinationCurrency: string;
+    targetCurrency: string;
 }
