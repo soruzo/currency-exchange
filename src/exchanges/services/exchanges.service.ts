@@ -19,9 +19,9 @@ export class ExchangesService {
 
     async create(exchange: Partial<Exchange>): Promise<ExchangeResponseDto> {
         this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.targetCurrency}`);
-        const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
-
-        const dateFromTimestamp = new Date(date).toISOString();
+        const { result, info } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
+        
+        const dateFromTimestamp = new Date().toISOString();
         const transactionId = await uuid();
         const rate = info.rate;
         const targetValue = result;

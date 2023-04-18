@@ -58,7 +58,10 @@ describe('ExchangesService', () => {
         info: { rate: 0.9 },
         date: new Date().getTime(),
       };
+
       (gateway.convert as jest.Mock).mockResolvedValue(convertResponse);
+
+      (repository.createExchange as jest.Mock).mockResolvedValue(exchange);
 
       await service.create(exchange);
 
@@ -76,11 +79,8 @@ describe('ExchangesService', () => {
       };
       const convertResponse = {
         result: 90,
-        info: { rate: 0.9 },
-        date: new Date().getTime(),
+        info: { rate: 0.9 }
       };
-
-      (gateway.convert as jest.Mock).mockResolvedValue(convertResponse);
 
       const completeExchange: Exchange = {
         id: '1',
@@ -91,8 +91,10 @@ describe('ExchangesService', () => {
         sourceValue: exchange.sourceValue,
         targetValue: 90,
         rate: 0.9,
-        datetime: new Date(convertResponse.date).toISOString(),
+        datetime: new Date().toISOString(),
       };
+
+      (gateway.convert as jest.Mock).mockResolvedValue(convertResponse);
 
       (repository.createExchange as jest.Mock).mockResolvedValue(completeExchange);
 

@@ -7,12 +7,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 
-if (process.env.NODE_ENV === 'test') {
-  dotenv.config({ path: '.env.test' });
-} else {
-  dotenv.config({ path: '.env' });
-}
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
