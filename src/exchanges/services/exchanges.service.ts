@@ -23,7 +23,7 @@ export class ExchangesService {
         
         const dateFromTimestamp = new Date().toISOString();
         const transactionId = await uuid();
-        const rate = info.rate;
+        const rate = info.quote; 
         const targetValue = result;
 
         const newExchange = {
@@ -77,5 +77,4 @@ export class ExchangesService {
 
         return responseDto;
     }
-
 }
