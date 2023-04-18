@@ -52,7 +52,9 @@ curl --location 'http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbea
 
 Obter todas as conversões realizadas por um usuário
 ```
-curl -X GET 'http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/exchanges/{user_id}'
+curl --location 'http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/exchanges/jaya-123' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {secret}'
 ```
 
 ##### Estrutura de diretórios
