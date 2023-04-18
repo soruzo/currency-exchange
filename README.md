@@ -37,7 +37,7 @@ A documentação da API está disponível através do Swagger em http://localhos
 
 ##### Exemplos de teste com cURL
 
-Criar uma nova conversão de moedas ('BRL', 'USD', 'EUR', 'JPY')
+Criar uma nova conversão de moedas (BRL, USD, EUR, JPY)
 ```
 curl --location 'http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/exchanges' \
 --header 'Content-Type: application/json' \
