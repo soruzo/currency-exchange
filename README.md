@@ -30,7 +30,7 @@ Ajuste os valores de acordo com a configuração do seu banco de dados PostgreSQ
 Para executar a aplicação localmente, use o comando:
 
 npm run start:dev
-A API estará disponível em http://localhost:3000
+A API estará disponível em `http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/`
 
 ##### Documentação da API
 A documentação da API está disponível através do Swagger em http://localhost:3000/api
@@ -39,7 +39,7 @@ A documentação da API está disponível através do Swagger em http://localhos
 
 Criar uma nova conversão de moedas
 ```
-curl --location 'http://localhost:3000/exchanges' \
+curl --location 'http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/exchanges' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer jaya-test' \
 --data '{
@@ -52,7 +52,7 @@ curl --location 'http://localhost:3000/exchanges' \
 
 Obter todas as conversões realizadas por um usuário
 ```
-curl -X GET 'http://localhost:3000/exchanges/{user_id}'
+curl -X GET 'http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/exchanges/{user_id}'
 ```
 
 ##### Estrutura de diretórios
