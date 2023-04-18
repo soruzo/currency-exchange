@@ -41,7 +41,7 @@ Criar uma nova conversão de moedas (BRL, USD, EUR, JPY)
 ```
 curl --location 'http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/exchanges' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer jaya-test' \
+--header 'Authorization: Bearer {secret}' \
 --data '{
     "user_id": "user_id",
     "source_value": 1,
