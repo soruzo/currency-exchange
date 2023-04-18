@@ -79,7 +79,7 @@ describe('ExchangesService', () => {
       };
       const convertResponse = {
         result: 90,
-        info: { rate: 0.9 }
+        info: { quote: 0.9 }
       };
 
       const completeExchange: Exchange = {
