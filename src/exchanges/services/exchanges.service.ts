@@ -4,7 +4,7 @@ import { ExchangeRepository } from '../repositories/exchange.repository';
 import { ExchangeRatesGateway } from '../gateways/exchange-rates.gateway';
 import { Exchange } from '../entities/exchange.entity';
 import { Logger } from '@nestjs/common';
-
+import { ExchangeResponseDto } from '../dto/exchange-response.dto';
 
 @Injectable()
 export class ExchangesService {
@@ -15,38 +15,67 @@ export class ExchangesService {
         private readonly exchangeGateway: ExchangeRatesGateway
     ) { }
 
-    async create(exchange: Partial<Exchange>): Promise<Exchange> {
-        try {
-            this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.targetCurrency}`);
-            const { result, info, date } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
 
-            const dateFromTimestamp = new Date(date).toISOString();
-            const newExchange = exchange;
 
-            newExchange.transactionId = await uuid();
-            newExchange.datetime = dateFromTimestamp;
-            newExchange.rate = info.rate;
-            newExchange.targetValue = result;
+    async create(exchange: Partial<Exchange>): Promise<ExchangeResponseDto> {
+        this.logger.log(`Starting currency conversion process. From ${exchange.sourceCurrency} to ${exchange.targetCurrency}`);
+        const { result, info } = await this.exchangeGateway.convert(exchange.sourceValue, exchange.sourceCurrency, exchange.targetCurrency);
+        
+        const dateFromTimestamp = new Date().toISOString();
+        const transactionId = await uuid();
+        const rate = info.rate;
+        const targetValue = result;
 
-            this.logger.log(`Saving currency conversion information from transaction: ${newExchange.transactionId}`);
-            const response = await this.exchangeRepository.createExchange(newExchange);
-            this.logger.log(`Currency conversion process completed successfully from transaction: ${newExchange.transactionId}`);
+        const newExchange = {
+            ...exchange,
+            transactionId,
+            datetime: dateFromTimestamp,
+            rate,
+            targetValue,
+        };
 
-            return response;
+        this.logger.log(`Saving currency conversion information from transaction: ${transactionId}`);
+        const createdExchange = await this.exchangeRepository.createExchange(newExchange);
+        this.logger.log(`Currency conversion process completed successfully from transaction: ${transactionId}`);
 
-        } catch (error) {
-            this.logger.error("Something wrong on the conversion process.");
-            throw error;
-        }
+        return this.toResponseDto(createdExchange, transactionId, dateFromTimestamp, rate, targetValue);
     }
 
-    async findByUserId(userId: string): Promise<Exchange[]> {
-        try {
-            this.logger.log(`Trying to find user by user_id: ${userId}`);
-            return await this.exchangeRepository.findByUserId(userId);
-        } catch (error) {
-            this.logger.error("Something wrong on find user process.");
-            throw error;
-        }
+    async findByUserId(userId: string): Promise<ExchangeResponseDto[]> {
+        this.logger.log(`Trying to find user by user_id: ${userId}`);
+        const exchanges = await this.exchangeRepository.findByUserId(userId);
+        return exchanges.map(exchange => this.toResponseDto(
+            exchange,
+            exchange.transactionId,
+            exchange.datetime,
+            exchange.rate,
+            exchange.targetValue
+        ));
     }
+
+    private toResponseDto(
+        exchange: Exchange,
+        transactionId: string,
+        datetime: string,
+        rate: number,
+        targetValue: number
+    ): ExchangeResponseDto {
+        if (!exchange) {
+            throw new Error("Exchange object is undefined");
+        }
+
+        const responseDto: ExchangeResponseDto = {
+            transactionId,
+            userId: exchange.userId,
+            sourceCurrency: exchange.sourceCurrency,
+            sourceValue: exchange.sourceValue,
+            targetCurrency: exchange.targetCurrency,
+            targetValue,
+            rate,
+            datetime,
+        };
+
+        return responseDto;
+    }
+
 }
