@@ -30,12 +30,12 @@ Ajuste os valores de acordo com a configuração do seu banco de dados PostgreSQ
 Para executar a aplicação localmente, use o comando:
 
 npm run start:dev
-A API estará disponível em `http://currencyexchange01-env.eba-pamddhb2.us-east-1.elasticbeanstalk.com/`
+A API estará disponível em `http://localhost:3000`
 
 ##### Documentação da API
 A documentação da API está disponível através do Swagger em http://localhost:3000/api
 
-##### Exemplos de teste com cURL
+##### Exemplos de teste com cURL 
 
 Criar uma nova conversão de moedas (BRL, USD, EUR, JPY)
 ```
